@@ -1,0 +1,19 @@
+# 忽略权重和大数据
+checkpoints/
+data/
+results/
+*.pt
+*.pth
+*.npy
+*.npz
+
+# 忽略临时文件
+temp_local/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+
+# 忽略日志和环境
+*.log
+venv/
+.env
