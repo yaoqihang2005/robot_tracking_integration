@@ -1,0 +1,44 @@
+==================================================
+🔍 VGGT4Track 原始输出维度 (没有任何处理前):
+  - pose_enc       : torch.Size([1, 6, 9])
+  - pose_enc_list  : list length 4
+  - depth          : torch.Size([1, 6, 392, 518, 1])
+  - unc_metric     : torch.Size([6, 336, 448])
+  - images         : torch.Size([1, 6, 3, 336, 448])
+  - poses_pred     : torch.Size([1, 6, 4, 4])
+  - intrs          : torch.Size([1, 6, 3, 3])
+  - points_map     : torch.Size([6, 336, 448, 3])
+==================================================
+
+export CUDA_VISIBLE_DEVICES=3
+
+作者原始输出的 Keys: dict_keys(['pose_enc', 'pose_enc_list', 'depth', 'unc_metric', 
+'images', 'poses_pred', 'intrs', 'points_map'])
+
+conda activate spatrack
+
+inference.py跑通 主要就是utils3d的问题
+
+python inference.py --data_type="RGBD" --data_dir="assets" --video_name="my_realsense_data_movingfar" --fps=1
+
+对于assets/example1/snowboard.npz这个文件，解析成功后输出如下：
+==================================================
+解析成功: assets/example1/snowboard.npz
+==================================================
+
+🔑 Key: video           | Shape: (35, 3, 543, 724) | Dtype: float32
+🔑 Key: depths          | Shape: (35, 543, 724)  | Dtype: float32
+🔑 Key: intrinsics      | Shape: (35, 3, 3)      | Dtype: float32
+🔑 Key: extrinsics      | Shape: (35, 4, 4)      | Dtype: float32
+ 
+python app.py
+python viz_trace.py # 显示轨迹 脚本最后的 if __name__ == "__main__": 部分需要填入你当前 session 的真实路径，
+'''加载数据：读取 result.npz 中的 coords（形状为 $[T, N, 3]$）。
+
+起止痕迹 (Ghosting)：通过 ax.scatter(coords[0, ...], alpha=0.2) 绘制第一帧物体所有点的“影子”
+
+通过 ax.scatter(coords[-1, ...], alpha=0.2) 绘制最后一帧物体的“影子”。
+
+单条轨迹 (Single Line)：使用 np.mean(coords, axis=1) 将每一帧的 $N$ 个追踪点压缩成一个质心点。
+
+使用 ax.plot() 把这些质心连成一条线，代表物体的运动轨迹。'''

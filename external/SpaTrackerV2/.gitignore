@@ -1,0 +1,80 @@
+# ignore the multi media
+checkpoints
+**/checkpoints/
+**/temp/
+temp
+assets_dev
+assets/example0/results
+assets/example0/snowboard.npz
+assets/example1/results
+assets/davis_eval
+assets/*/results
+*gradio*
+# 
+models/monoD/zoeDepth/ckpts/*
+models/monoD/depth_anything/ckpts/*
+vis_results
+dist_encrypted
+# remove the dependencies
+deps
+
+# filter the __pycache__ files
+__pycache__/
+/**/**/__pycache__
+/**/__pycache__
+
+# ignore the visualizer
+viser
+viser_result
+benchmark/results
+benchmark
+
+prev_version
+spat_ceres
+wandb
+*.log
+seg_target.py
+
+infer_cam.py
+infer_stream.py
+
+*.egg-info/
+**/*.egg-info
+
+
+config/fix_2d.yaml
+
+
+models/**/build
+models/**/dist
+
+temp_local
+examples/results
+
+dyn_check
+
+evaluation/saved
+
+# 排除权重文件 (最重要的)
+weights/
+*.pth
+*.pt
+*.ckpt
+
+# 排除采集的大数据文件
+assets/*.npz
+assets/results/
+assets/example1/
+trajectory_cloud.png
+
+# 排除备份和临时脚本
+*bak.py
+__pycache__/
+.ipynb_checkpoints/
+
+# 排除环境相关
+venv/
+.env
+
+examples/
+assets/
