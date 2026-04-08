@@ -7,10 +7,12 @@ import gc
 import functools
 
 # 1. 动态关联外部路径
-SPA_ROOT = "/data/lihong-project/qihang/projects/SpaTrackerV2"
-UTILS3D_ROOT = "/data/lihong-project/qihang/projects/utils3d-main"
+from core.config import SPA_ROOT, UTILS3D_ROOT, SAM2_ROOT, SPA_OFFLINE_CHECKPOINT, SPA_FRONT_CHECKPOINT
+
+# 严格按照你截图中能跑通的顺序挂载路径
 for path in [SPA_ROOT, UTILS3D_ROOT]:
-    if path not in sys.path: sys.path.append(path)
+    if path not in sys.path:
+        sys.path.append(path)
 
 # 2. 导入官方库
 import utils3d
@@ -121,8 +123,8 @@ def patch_utils3d():
 patch_utils3d()
 
 class TrackerHelper:
-    def __init__(self, checkpoint="/data/lihong-project/qihang/projects/SpaTrackerV2/weights/SpatialTrackerV2-Offline",
-                 front_checkpoint="/data/lihong-project/qihang/projects/SpaTrackerV2/weights/SpatialTrackerV2_Front"):
+    def __init__(self, checkpoint=SPA_OFFLINE_CHECKPOINT,
+                 front_checkpoint=SPA_FRONT_CHECKPOINT):
         self.device = torch.device("cuda:0")
         print(f"正在初始化 SpaTracker (借鉴官方 inference.py)...")
         self.vggt_model = VGGT4Track.from_pretrained(front_checkpoint)

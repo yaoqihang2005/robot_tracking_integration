@@ -11,6 +11,7 @@ from core.sam_helper import SAM2Helper
 from core.tracker_helper import TrackerHelper
 from utils.sampler import sample_points_from_mask
 from utils.video_utils import video_to_frames
+from core.config import check_env
 
 def main_pipeline(video_path, box):
     """
@@ -18,6 +19,11 @@ def main_pipeline(video_path, box):
     video_path: 视频文件路径
     box: 第一帧的目标 Box [x1, y1, x2, y2]
     """
+    # 环境自检
+    if not check_env():
+        print("❌ 环境检查未通过，请确保依赖库路径正确。")
+        return
+        
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     # --- 阶段 0: 视频预处理与缩放 ---

@@ -5,8 +5,9 @@ import numpy as np
 from hydra import initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 
+from core.config import SAM2_ROOT, SAM2_CHECKPOINT, SAM2_MODEL_CFG
+
 # 1. 动态关联外部路径
-SAM2_ROOT = "/data/lihong-project/qihang/projects/sam2"
 if SAM2_ROOT not in sys.path:
     sys.path.append(SAM2_ROOT)
 
@@ -14,15 +15,12 @@ if SAM2_ROOT not in sys.path:
 if os.path.join(SAM2_ROOT, "sam2") not in sys.path:
     sys.path.append(os.path.join(SAM2_ROOT, "sam2"))
 
-try:
-    from sam2.build_sam import build_sam2_video_predictor
-    print("✅ 成功关联外部 SAM 2 库")
-except ImportError as e:
-    print(f"❌ 关联 SAM 2 失败，请检查路径: {SAM2_ROOT}")
-    print(f"错误详情: {e}")
+from sam2.build_sam import build_sam2_video_predictor
+print(f"✅ 成功关联外部 SAM 2 库: {SAM2_ROOT}")
 
 class SAM2Helper:
-    def __init__(self, model_cfg="sam2.1/sam2.1_hiera_l.yaml", checkpoint="/data/lihong-project/qihang/projects/sam2/checkpoints/sam2.1_hiera_large.pt"):
+    def __init__(self, model_cfg=SAM2_MODEL_CFG, 
+                 checkpoint=SAM2_CHECKPOINT):
         """
         初始化 SAM 2 视频预测器
         """

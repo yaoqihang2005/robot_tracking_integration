@@ -1,0 +1,213 @@
+xFormers not available
+xFormers not available
+/home/lihong-project/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-dpi4j4o_ because there was an issue with the default path (/home/lihong-project/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+Matplotlib is building the font cache; this may take a moment.
+2026-03-24 09:18:19,539 - WARNING - /home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/cuda/__init__.py:174: UserWarning: CUDA initialization: Unexpected error from cudaGetDeviceCount(). Did you run some cuda functions before calling NumCudaDevices() that might have already set an error? Error 304: OS call failed or operation not supported on this OS (Triggered internally at /pytorch/c10/cuda/CUDAFunctions.cpp:109.)
+  return torch._C._cuda_getDeviceCount() > 0
+
+2026-03-24 09:18:37,138 - INFO - Loaded checkpoint sucessfully
+2026-03-24 09:18:37,218 - WARNING - /home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/amp/autocast_mode.py:266: UserWarning: User provided device_type of 'cuda', but CUDA is not available. Disabling
+  warnings.warn(
+
+
+frame loading (JPEG):   0%|          | 0/100 [00:00<?, ?it/s]
+frame loading (JPEG):   2%|▏         | 2/100 [00:00<00:05, 16.45it/s]
+frame loading (JPEG):   4%|▍         | 4/100 [00:00<00:06, 14.41it/s]
+frame loading (JPEG):   6%|▌         | 6/100 [00:00<00:06, 14.30it/s]
+frame loading (JPEG):   8%|▊         | 8/100 [00:00<00:06, 15.33it/s]
+frame loading (JPEG):  10%|█         | 10/100 [00:00<00:05, 15.89it/s]
+frame loading (JPEG):  12%|█▏        | 12/100 [00:00<00:05, 15.67it/s]
+frame loading (JPEG):  14%|█▍        | 14/100 [00:00<00:05, 15.19it/s]
+frame loading (JPEG):  16%|█▌        | 16/100 [00:01<00:06, 12.58it/s]
+frame loading (JPEG):  18%|█▊        | 18/100 [00:01<00:05, 13.72it/s]
+frame loading (JPEG):  20%|██        | 20/100 [00:01<00:05, 14.51it/s]
+frame loading (JPEG):  22%|██▏       | 22/100 [00:01<00:05, 14.60it/s]
+frame loading (JPEG):  24%|██▍       | 24/100 [00:01<00:05, 13.41it/s]
+frame loading (JPEG):  26%|██▌       | 26/100 [00:01<00:05, 13.64it/s]
+frame loading (JPEG):  28%|██▊       | 28/100 [00:01<00:05, 14.31it/s]
+frame loading (JPEG):  30%|███       | 30/100 [00:02<00:05, 12.85it/s]
+frame loading (JPEG):  32%|███▏      | 32/100 [00:02<00:05, 13.31it/s]
+frame loading (JPEG):  35%|███▌      | 35/100 [00:02<00:04, 15.88it/s]
+frame loading (JPEG):  37%|███▋      | 37/100 [00:02<00:03, 16.35it/s]
+frame loading (JPEG):  39%|███▉      | 39/100 [00:02<00:03, 16.75it/s]
+frame loading (JPEG):  41%|████      | 41/100 [00:02<00:03, 16.16it/s]
+frame loading (JPEG):  43%|████▎     | 43/100 [00:02<00:03, 16.93it/s]
+frame loading (JPEG):  45%|████▌     | 45/100 [00:02<00:03, 17.41it/s]
+frame loading (JPEG):  47%|████▋     | 47/100 [00:03<00:02, 17.85it/s]
+frame loading (JPEG):  50%|█████     | 50/100 [00:03<00:02, 19.41it/s]
+frame loading (JPEG):  52%|█████▏    | 52/100 [00:03<00:03, 15.73it/s]
+frame loading (JPEG):  54%|█████▍    | 54/100 [00:03<00:02, 16.27it/s]
+frame loading (JPEG):  57%|█████▋    | 57/100 [00:03<00:02, 17.52it/s]
+frame loading (JPEG):  59%|█████▉    | 59/100 [00:03<00:02, 17.42it/s]
+frame loading (JPEG):  62%|██████▏   | 62/100 [00:03<00:02, 16.74it/s]
+frame loading (JPEG):  64%|██████▍   | 64/100 [00:04<00:02, 16.46it/s]
+frame loading (JPEG):  66%|██████▌   | 66/100 [00:04<00:02, 15.78it/s]
+frame loading (JPEG):  68%|██████▊   | 68/100 [00:04<00:02, 15.83it/s]
+frame loading (JPEG):  70%|███████   | 70/100 [00:04<00:01, 16.03it/s]
+frame loading (JPEG):  72%|███████▏  | 72/100 [00:04<00:01, 15.74it/s]
+frame loading (JPEG):  74%|███████▍  | 74/100 [00:04<00:01, 13.66it/s]
+frame loading (JPEG):  76%|███████▌  | 76/100 [00:04<00:01, 13.10it/s]
+frame loading (JPEG):  78%|███████▊  | 78/100 [00:05<00:01, 12.96it/s]
+frame loading (JPEG):  80%|████████  | 80/100 [00:05<00:01, 13.25it/s]
+frame loading (JPEG):  82%|████████▏ | 82/100 [00:05<00:01, 13.04it/s]
+frame loading (JPEG):  84%|████████▍ | 84/100 [00:05<00:01, 12.96it/s]
+frame loading (JPEG):  86%|████████▌ | 86/100 [00:05<00:01, 11.49it/s]
+frame loading (JPEG):  88%|████████▊ | 88/100 [00:05<00:01, 11.94it/s]
+frame loading (JPEG):  90%|█████████ | 90/100 [00:06<00:00, 12.19it/s]
+frame loading (JPEG):  92%|█████████▏| 92/100 [00:06<00:00, 13.15it/s]
+frame loading (JPEG):  94%|█████████▍| 94/100 [00:06<00:00, 11.70it/s]
+frame loading (JPEG):  96%|█████████▌| 96/100 [00:06<00:00, 11.67it/s]
+frame loading (JPEG):  99%|█████████▉| 99/100 [00:06<00:00, 14.06it/s]
+frame loading (JPEG): 100%|██████████| 100/100 [00:06<00:00, 14.61it/s]
+2026-03-24 09:19:08,314 - WARNING - /data/lihong-project/qihang/projects/sam2/sam2/sam2_video_predictor.py:786: UserWarning: cannot import name '_C' from 'sam2' (/data/lihong-project/qihang/projects/sam2/sam2/__init__.py)
+
+Skipping the post-processing step due to the error above. You can still use SAM 2 and it's OK to ignore the error above, although some post-processing functionality may be limited (which doesn't affect the results in most cases; see https://github.com/facebookresearch/sam2/blob/main/INSTALL.md).
+  pred_masks_gpu = fill_holes_in_mask_scores(
+
+
+propagate in video:   0%|          | 0/100 [00:00<?, ?it/s]
+propagate in video:   2%|▏         | 2/100 [00:30<24:57, 15.28s/it]
+propagate in video:   3%|▎         | 3/100 [01:07<39:29, 24.43s/it]
+propagate in video:   4%|▍         | 4/100 [01:34<40:30, 25.32s/it]
+propagate in video:   5%|▌         | 5/100 [02:01<40:59, 25.89s/it]
+propagate in video:   6%|▌         | 6/100 [02:28<41:02, 26.19s/it]
+propagate in video:   7%|▋         | 7/100 [02:56<41:27, 26.75s/it]
+propagate in video:   8%|▊         | 8/100 [03:24<41:33, 27.10s/it]
+propagate in video:   9%|▉         | 9/100 [03:51<41:22, 27.28s/it]
+propagate in video:  10%|█         | 10/100 [04:19<41:08, 27.43s/it]
+propagate in video:  11%|█         | 11/100 [04:45<39:56, 26.92s/it]
+propagate in video:  12%|█▏        | 12/100 [05:19<42:35, 29.04s/it]
+propagate in video:  13%|█▎        | 13/100 [05:57<46:17, 31.92s/it]
+propagate in video:  14%|█▍        | 14/100 [06:29<45:34, 31.80s/it]
+propagate in video:  15%|█▌        | 15/100 [07:01<45:17, 31.97s/it]
+propagate in video:  16%|█▌        | 16/100 [07:37<46:30, 33.22s/it]
+propagate in video:  17%|█▋        | 17/100 [08:09<45:10, 32.66s/it]
+propagate in video:  18%|█▊        | 18/100 [08:37<42:49, 31.34s/it]
+propagate in video:  19%|█▉        | 19/100 [09:03<40:17, 29.84s/it]
+propagate in video:  20%|██        | 20/100 [09:32<39:28, 29.61s/it]
+propagate in video:  21%|██        | 21/100 [10:02<38:58, 29.60s/it]
+propagate in video:  22%|██▏       | 22/100 [10:33<38:51, 29.89s/it]
+propagate in video:  23%|██▎       | 23/100 [11:08<40:19, 31.42s/it]
+propagate in video:  24%|██▍       | 24/100 [11:43<41:26, 32.71s/it]
+propagate in video:  25%|██▌       | 25/100 [12:11<38:59, 31.19s/it]
+propagate in video:  26%|██▌       | 26/100 [12:37<36:41, 29.75s/it]
+propagate in video:  27%|██▋       | 27/100 [13:06<35:54, 29.51s/it]
+propagate in video:  28%|██▊       | 28/100 [13:36<35:27, 29.55s/it]
+propagate in video:  29%|██▉       | 29/100 [14:06<35:02, 29.61s/it]
+propagate in video:  30%|███       | 30/100 [14:41<36:31, 31.31s/it]
+propagate in video:  31%|███       | 31/100 [15:15<37:06, 32.27s/it]
+propagate in video:  32%|███▏      | 32/100 [15:43<34:56, 30.83s/it]
+propagate in video:  33%|███▎      | 33/100 [16:10<33:12, 29.74s/it]
+propagate in video:  34%|███▍      | 34/100 [16:37<31:47, 28.89s/it]
+propagate in video:  35%|███▌      | 35/100 [17:04<30:46, 28.41s/it]
+propagate in video:  36%|███▌      | 36/100 [17:33<30:26, 28.54s/it]
+propagate in video:  37%|███▋      | 37/100 [17:59<29:04, 27.70s/it]
+propagate in video:  38%|███▊      | 38/100 [18:25<28:07, 27.22s/it]
+propagate in video:  39%|███▉      | 39/100 [18:52<27:43, 27.27s/it]
+propagate in video:  40%|████      | 40/100 [19:22<27:55, 27.92s/it]
+propagate in video:  41%|████      | 41/100 [19:49<27:11, 27.65s/it]
+propagate in video:  42%|████▏     | 42/100 [20:15<26:23, 27.30s/it]
+propagate in video:  43%|████▎     | 43/100 [20:41<25:37, 26.97s/it]
+propagate in video:  44%|████▍     | 44/100 [21:08<25:00, 26.80s/it]
+propagate in video:  45%|████▌     | 45/100 [21:35<24:35, 26.82s/it]
+propagate in video:  46%|████▌     | 46/100 [22:02<24:07, 26.80s/it]
+propagate in video:  47%|████▋     | 47/100 [22:30<24:00, 27.17s/it]
+propagate in video:  48%|████▊     | 48/100 [22:54<22:45, 26.25s/it]
+propagate in video:  49%|████▉     | 49/100 [23:15<20:57, 24.65s/it]
+propagate in video:  50%|█████     | 50/100 [23:29<17:57, 21.55s/it]
+propagate in video:  51%|█████     | 51/100 [23:44<16:06, 19.73s/it]
+propagate in video:  52%|█████▏    | 52/100 [24:01<15:07, 18.91s/it]
+propagate in video:  53%|█████▎    | 53/100 [24:17<14:04, 17.96s/it]
+propagate in video:  54%|█████▍    | 54/100 [24:32<13:05, 17.08s/it]
+propagate in video:  55%|█████▌    | 55/100 [24:47<12:25, 16.57s/it]
+propagate in video:  56%|█████▌    | 56/100 [25:02<11:46, 16.06s/it]
+propagate in video:  57%|█████▋    | 57/100 [25:17<11:11, 15.62s/it]
+propagate in video:  58%|█████▊    | 58/100 [25:31<10:33, 15.09s/it]
+propagate in video:  59%|█████▉    | 59/100 [25:47<10:26, 15.27s/it]
+propagate in video:  60%|██████    | 60/100 [26:01<10:04, 15.11s/it]
+propagate in video:  61%|██████    | 61/100 [26:18<10:14, 15.75s/it]
+propagate in video:  62%|██████▏   | 62/100 [26:42<11:25, 18.05s/it]
+propagate in video:  63%|██████▎   | 63/100 [27:06<12:13, 19.83s/it]
+propagate in video:  64%|██████▍   | 64/100 [27:27<12:06, 20.18s/it]
+propagate in video:  65%|██████▌   | 65/100 [27:44<11:18, 19.39s/it]
+propagate in video:  66%|██████▌   | 66/100 [28:00<10:19, 18.22s/it]
+propagate in video:  67%|██████▋   | 67/100 [28:15<09:30, 17.29s/it]
+propagate in video:  68%|██████▊   | 68/100 [28:33<09:18, 17.46s/it]
+propagate in video:  69%|██████▉   | 69/100 [28:50<08:57, 17.34s/it]
+propagate in video:  70%|███████   | 70/100 [29:06<08:25, 16.87s/it]
+propagate in video:  71%|███████   | 71/100 [29:23<08:11, 16.93s/it]
+propagate in video:  72%|███████▏  | 72/100 [29:39<07:51, 16.86s/it]
+propagate in video:  73%|███████▎  | 73/100 [29:56<07:33, 16.80s/it]
+propagate in video:  74%|███████▍  | 74/100 [30:13<07:14, 16.73s/it]
+propagate in video:  75%|███████▌  | 75/100 [30:29<06:51, 16.48s/it]
+propagate in video:  76%|███████▌  | 76/100 [30:44<06:30, 16.29s/it]
+propagate in video:  77%|███████▋  | 77/100 [31:01<06:18, 16.44s/it]
+propagate in video:  78%|███████▊  | 78/100 [31:20<06:18, 17.22s/it]
+propagate in video:  79%|███████▉  | 79/100 [31:37<05:58, 17.09s/it]
+propagate in video:  80%|████████  | 80/100 [31:55<05:45, 17.27s/it]
+propagate in video:  81%|████████  | 81/100 [32:11<05:24, 17.10s/it]
+propagate in video:  82%|████████▏ | 82/100 [32:28<05:05, 17.00s/it]
+propagate in video:  83%|████████▎ | 83/100 [32:45<04:49, 17.02s/it]
+propagate in video:  84%|████████▍ | 84/100 [33:03<04:35, 17.22s/it]
+propagate in video:  85%|████████▌ | 85/100 [33:20<04:18, 17.23s/it]
+propagate in video:  86%|████████▌ | 86/100 [33:36<03:55, 16.81s/it]
+propagate in video:  87%|████████▋ | 87/100 [33:53<03:40, 16.99s/it]
+propagate in video:  88%|████████▊ | 88/100 [34:10<03:23, 16.93s/it]
+propagate in video:  89%|████████▉ | 89/100 [34:27<03:06, 16.97s/it]
+propagate in video:  90%|█████████ | 90/100 [34:36<02:25, 14.55s/it]
+propagate in video:  91%|█████████ | 91/100 [34:47<02:01, 13.56s/it]
+propagate in video:  92%|█████████▏| 92/100 [34:53<01:28, 11.01s/it]
+propagate in video:  93%|█████████▎| 93/100 [34:59<01:08,  9.79s/it]
+propagate in video:  94%|█████████▍| 94/100 [35:07<00:54,  9.16s/it]
+propagate in video:  95%|█████████▌| 95/100 [35:13<00:41,  8.28s/it]
+propagate in video:  96%|█████████▌| 96/100 [35:22<00:33,  8.39s/it]
+propagate in video:  97%|█████████▋| 97/100 [35:27<00:21,  7.33s/it]
+propagate in video:  98%|█████████▊| 98/100 [35:32<00:13,  6.53s/it]
+propagate in video:  99%|█████████▉| 99/100 [35:39<00:06,  6.75s/it]
+propagate in video: 100%|██████████| 100/100 [35:42<00:00,  5.76s/it]
+propagate in video: 100%|██████████| 100/100 [35:42<00:00, 21.43s/it]
+2026-03-24 09:54:54,521 - INFO - using MLP layer as FFN
+Traceback (most recent call last):
+  File "/data/lihong-project/qihang/projects/robot_tracking_integration/main_pipeline.py", line 113, in <module>
+    main_pipeline(VIDEO_PATH, BOX)
+  File "/data/lihong-project/qihang/projects/robot_tracking_integration/main_pipeline.py", line 75, in main_pipeline
+    tracker_handler = TrackerHelper()
+  File "/data/lihong-project/qihang/projects/robot_tracking_integration/core/tracker_helper.py", line 95, in __init__
+    p = F.pad(x, (1, 1, 1, 1), mode='replicate')
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1355, in to
+    return self._apply(convert)
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/nn/modules/module.py", line 915, in _apply
+    module._apply(fn)
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/nn/modules/module.py", line 915, in _apply
+    module._apply(fn)
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/nn/modules/module.py", line 915, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/nn/modules/module.py", line 942, in _apply
+    param_applied = fn(param)
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1341, in convert
+    return t.to(
+  File "/home/lihong-project/miniforge3/envs/tracking/lib/python3.10/site-packages/torch/cuda/__init__.py", line 372, in _lazy_init
+    torch._C._cuda_init()
+RuntimeError: Unexpected error from cudaGetDeviceCount(). Did you run some cuda functions before calling NumCudaDevices() that might have already set an error? Error 304: OS call failed or operation not supported on this OS
+
+ERROR conda.cli.main_run:execute(127): `conda run python -u main_pipeline.py` failed. (See above for error)
+✅ 成功关联外部 SAM 2 库
+✅ 已成功注入精度自适应补丁 (inverse, quantile)
+✅ 已成功注入显存优化补丁 (fmaps_chunk_size=4)
+✅ 已成功注入 utils3d.torch 补丁 (points_to_normals, depth_edge)
+正在转换并缩放视频帧: data/protein.mp4
+原始分辨率: 960x540 -> 缩放后: 512x288 (Scale: 0.53)
+原始 Box: [100. 100. 300. 300.] -> 缩放后 Box: [ 53.333336  53.333336 160.00002  160.00002 ]
+
+--- 阶段 1: SAM 2 掩码传播 (显存隔离模式) ---
+正在加载 SAM 2 模型: /data/lihong-project/qihang/projects/sam2/checkpoints/sam2.1_hiera_large.pt
+正在释放 SAM 2 资源...
+
+--- 阶段 2: 高密度点采样 (256 点) ---
+
+--- 阶段 3: SpaTracker V2 3D 追踪 ---
+正在初始化 SpaTracker (借鉴官方 inference.py)...
+Loading weights from local directory
+

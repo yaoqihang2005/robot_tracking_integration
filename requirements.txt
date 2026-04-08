@@ -1,0 +1,25 @@
+# 核心框架
+torch>=2.3.1
+torchvision>=0.18.1
+numpy
+opencv-python
+pillow
+
+# SAM 2 相关依赖
+hydra-core
+iopath
+tqdm
+matplotlib
+
+# SpaTracker V2 相关依赖
+scipy
+einops
+timm
+h5py
+pyyaml
+tensorboard
+scikit-image
+
+# 3D 与几何处理
+# 注意：pycolmap 可能需要根据 CUDA 版本手动安装
+# pip install pycolmap

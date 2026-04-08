@@ -1,12 +1,19 @@
 import os
 import sys
+
+# 将项目根目录添加到 sys.path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 import numpy as np
 import cv2
 import torch
 import torch.nn.functional as F
+from core.config import SPA_ROOT
 
 # 1. 动态关联外部路径
-SPA_ROOT = "/data/lihong-project/qihang/projects/SpaTrackerV2"
 if SPA_ROOT not in sys.path: sys.path.append(SPA_ROOT)
 
 from models.SpaTrackV2.utils.visualizer import Visualizer

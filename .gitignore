@@ -1,19 +1,30 @@
-# 忽略权重和大数据
-checkpoints/
-data/
-results/
+# 忽略权重文件 (防止仓库过大)
 *.pt
 *.pth
-*.npy
+*.ckpt
+*.onnx
+external/**/checkpoints/
+external/**/weights/
+
+# 忽略临时数据与结果
+data/temp_frames/
+results/
+*.mp4
+*.jpg
+*.png
 *.npz
 
-# 忽略临时文件
-temp_local/
+# 忽略 Python 缓存
 __pycache__/
+*.pyc
 .ipynb_checkpoints/
-.DS_Store
 
-# 忽略日志和环境
-*.log
+# 忽略虚拟环境
 venv/
+env/
 .env
+
+# 忽略 IDE 配置
+.vscode/
+.idea/
+.DS_Store
