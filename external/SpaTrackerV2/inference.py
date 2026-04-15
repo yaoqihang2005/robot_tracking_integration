@@ -224,15 +224,47 @@ if __name__ == "__main__":
 
     # Run model inference
     with torch.amp.autocast(device_type="cuda", dtype=torch.bfloat16):
-        (
-            c2w_traj, intrs, point_map, conf_depth,
-            track3d_pred, track2d_pred, vis_pred, conf_pred, video
-        ) = model.forward(video_tensor, depth=depth_tensor,
-                            intrs=intrs, extrs=extrs, 
-                            queries=query_xyt,
-                            fps=1, full_point=False, iters_track=4,
-                            query_no_BA=True, fixed_cam=False, stage=1, unc_metric=unc_metric,
-                            support_frame=len(video_tensor)-1, replace_ratio=0.2) 
+        outputs = model.forward(
+            video_tensor,
+            depth=depth_tensor,
+            intrs=intrs,
+            extrs=extrs,
+            queries=query_xyt,
+            fps=1,
+            full_point=False,
+            iters_track=4,
+            query_no_BA=True,
+            fixed_cam=False,
+            stage=1,
+            unc_metric=unc_metric,
+            support_frame=len(video_tensor) - 1,
+            replace_ratio=0.2,
+        )
+        if len(outputs) == 10:
+            (
+                c2w_traj,
+                intrs,
+                point_map,
+                conf_depth,
+                track3d_pred,
+                track2d_pred,
+                vis_pred,
+                conf_pred,
+                _dyn_pred,
+                video,
+            ) = outputs
+        else:
+            (
+                c2w_traj,
+                intrs,
+                point_map,
+                conf_depth,
+                track3d_pred,
+                track2d_pred,
+                vis_pred,
+                conf_pred,
+                video,
+            ) = outputs
         
         # resize the results to avoid too large I/O Burden
         # depth and image, the maximum side is 336

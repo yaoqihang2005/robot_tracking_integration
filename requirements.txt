@@ -23,3 +23,13 @@ scikit-image
 # 3D 与几何处理
 # 注意：pycolmap 可能需要根据 CUDA 版本手动安装
 # pip install pycolmap
+... (原有内容)
+# 补上缺失的插件
+...
+# 补上视频 IO 核心依赖
+av
+flow_vis
+xformers
+moviepy<2.0.0
+easydict
+scikit-learn

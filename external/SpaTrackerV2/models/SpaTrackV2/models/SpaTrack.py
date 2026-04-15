@@ -381,7 +381,7 @@ class SpaTrack2(nn.Module, PyTorchModelHubMixin):
             
             return ret    
         else:
-            return c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred
+            return c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred, dyn_preds
     def forward(self,
                  x: torch.Tensor,
                  annots: Dict = {},

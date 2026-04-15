@@ -11,6 +11,7 @@ from core.sam_helper import SAM2Helper
 from core.tracker_helper import TrackerHelper
 from utils.sampler import sample_points_from_mask
 from utils.video_utils import video_to_frames
+from utils.data_filter import FilterThresholds, compute_quality_scores
 from core.config import check_env
 
 def main_pipeline(video_path, box):
@@ -33,6 +34,7 @@ def main_pipeline(video_path, box):
     
     print(f"正在转换并缩放视频帧: {video_path}")
     cap = cv2.VideoCapture(video_path)
+    video_fps = cap.get(cv2.CAP_PROP_FPS) or 0.0
     frame_idx = 0
     frames_list = []
     scale = 1.0
@@ -91,7 +93,11 @@ def main_pipeline(video_path, box):
     
     # 解包结果 (V2 9项输出)
     # c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred, video_org
-    c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred, _ = outputs
+    dyn_pred = None
+    if len(outputs) == 10:
+        c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred, dyn_pred, _ = outputs
+    else:
+        c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred, _ = outputs
 
     # --- 阶段 4: 保存结果 ---
     results_dir = "results"
@@ -106,6 +112,10 @@ def main_pipeline(video_path, box):
              camera_poses=c2w_traj.cpu().numpy(),
              intrinsics=intrs_out.cpu().numpy(),
              visibility=vis_pred.cpu().numpy(),
+             confidence=conf_pred.cpu().numpy(),
+             unc_metric=unc_metric.cpu().numpy(),
+             dynamic_score=np.array([]) if dyn_pred is None else dyn_pred.cpu().numpy(),
+             src_fps=float(video_fps),
              resolution_scale=scale)
 
     # 额外保存 tapip3d 格式结果（用于 3D 可视化）
@@ -129,7 +139,43 @@ def main_pipeline(video_path, box):
              depths=depth_map,
              video=video_tensor.cpu().numpy() / 255.0, # (T, 3, H, W)
              visibs=vis_pred.squeeze(-1).cpu().numpy(), # (T, N)
-             confs=conf_pred.squeeze(-1).cpu().numpy()) # (T, N)
+             confs=conf_pred.squeeze(-1).cpu().numpy(),
+             dyn_scores=np.array([]) if dyn_pred is None else dyn_pred.squeeze(-1).cpu().numpy(),
+             src_fps=float(video_fps))
+
+    dt = 1.0 / float(video_fps) if float(video_fps) > 0 else 1.0
+    scores = compute_quality_scores(
+        c2w_traj=c2w_traj.cpu(),
+        intrs_out=intrs_out.cpu(),
+        track3d_pred=track3d_pred.cpu(),
+        track2d_pred=track2d_pred.cpu(),
+        vis_pred=vis_pred.cpu(),
+        conf_pred=conf_pred.cpu(),
+        dyn_pred=None if dyn_pred is None else dyn_pred.cpu(),
+        dt=dt,
+        thresholds=FilterThresholds(),
+    )
+
+    score_path = os.path.join(results_dir, "quality_scores.npz")
+    np.savez(
+        score_path,
+        mean_visibility=scores["mean_visibility"],
+        mean_confidence=scores["mean_confidence"],
+        dynamic_score_mean=scores["dynamic_score_mean"],
+        visibility_frame_mean=scores["visibility_frame_mean"],
+        visibility_low_run=scores["visibility_low_run"],
+        reprojection_error_p95_px=scores["reprojection_error_p95_px"],
+        reprojection_error_max_px=scores["reprojection_error_max_px"],
+        speed_p95=scores["speed_p95"],
+        speed_max=scores["speed_max"],
+        accel_p95=scores["accel_p95"],
+        visibility_failure=scores["flags"]["visibility_failure"],
+        low_confidence=scores["flags"]["low_confidence"],
+        reprojection_conflict=scores["flags"]["reprojection_conflict"],
+        tracking_jump=scores["flags"]["tracking_jump"],
+        src_fps=float(video_fps),
+        dt=float(dt),
+    )
     
     print(f"\n✅ 全流程运行成功！")
     print(f" - 2D 可视化: 请运行 `python scripts/visualize_2d.py` 查看结果视频")

@@ -11,7 +11,7 @@ from models.SpaTrackV2.models.tracker3D.co_tracker.utils import (
     EfficientUpdateFormer, AttnBlock, Attention, CrossAttnBlock,
     sequence_BCE_loss, sequence_loss, sequence_prob_loss, sequence_dyn_prob_loss, sequence_loss_xyz, balanced_binary_cross_entropy
 )
-from torchvision.io import write_video
+# from torchvision.io import write_video
 import math
 from models.SpaTrackV2.models.tracker3D.co_tracker.utils import (
     Mlp, BasicEncoder, EfficientUpdateFormer, GeometryEncoder, NeighborTransformer, CorrPointformer
