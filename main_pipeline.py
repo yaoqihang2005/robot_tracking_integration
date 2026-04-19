@@ -14,11 +14,14 @@ from utils.video_utils import video_to_frames
 from utils.data_filter import FilterThresholds, compute_quality_scores
 from core.config import check_env
 
-def main_pipeline(video_path, box):
+def main_pipeline(video_path, box=None, points=None, labels=None, output_dir="results"):
     """
     针对 OOM 优化的整合主流水线
     video_path: 视频文件路径
     box: 第一帧的目标 Box [x1, y1, x2, y2]
+    points: [[x, y], ...]
+    labels: [1, 0, ...]
+    output_dir: 结果保存根目录
     """
     # 环境自检
     if not check_env():
@@ -57,14 +60,20 @@ def main_pipeline(video_path, box):
         frame_idx += 1
     cap.release()
 
-    # 同步缩放 Box 坐标
-    scaled_box = box * scale
-    print(f"原始 Box: {box} -> 缩放后 Box: {scaled_box}")
+    # 同步缩放 Box 或 Points 坐标
+    scaled_box = None
+    scaled_points = None
+    if box is not None:
+        scaled_box = box * scale
+        print(f"原始 Box: {box} -> 缩放后 Box: {scaled_box}")
+    if points is not None:
+        scaled_points = [[p[0] * scale, p[1] * scale] for p in points]
+        print(f"原始 Points 数量: {len(points)} -> 缩放后 Points 预览: {scaled_points[:2]}")
 
     # --- 阶段 1: SAM 2 掩码传播 ---
     print("\n--- 阶段 1: SAM 2 掩码传播 (显存隔离模式) ---")
     sam_handler = SAM2Helper()
-    video_masks = sam_handler.get_video_masks(frames_dir, scaled_box)
+    video_masks = sam_handler.get_video_masks(frames_dir, points=scaled_points, labels=labels, box=scaled_box)
     
     # 【关键】立即释放 SAM 2 显存
     print("正在释放 SAM 2 资源...")
@@ -100,7 +109,7 @@ def main_pipeline(video_path, box):
         c2w_traj, intrs_out, point_map, unc_metric, track3d_pred, track2d_pred, vis_pred, conf_pred, _ = outputs
 
     # --- 阶段 4: 保存结果 ---
-    results_dir = "results"
+    results_dir = output_dir
     os.makedirs(results_dir, exist_ok=True)
     
     # 保存基础结果
@@ -143,10 +152,18 @@ def main_pipeline(video_path, box):
              dyn_scores=np.array([]) if dyn_pred is None else dyn_pred.squeeze(-1).cpu().numpy(),
              src_fps=float(video_fps))
 
+    # 修正：重投影误差计算前，确保内参和 2D 轨迹在同一分辨率空间 (scale 后的 512p)
+    # track2d_pred 已经是相对于 scale 后的分辨率了
+    # 我们需要对 intrs_out 进行校正，使其匹配 scale 后的分辨率
+    corrected_intrs = intrs_out.clone().cpu()
+    # intrs_out 通常是 [T, 3, 3]，其中 fx, fy, cx, cy 需要缩放
+    # 这里的 scale 是 512 / max(H, W)
+    # 但是 SpaTracker 内部可能已经对内参做过一次到 518 的缩放，所以这里要非常小心
+    
     dt = 1.0 / float(video_fps) if float(video_fps) > 0 else 1.0
     scores = compute_quality_scores(
         c2w_traj=c2w_traj.cpu(),
-        intrs_out=intrs_out.cpu(),
+        intrs_out=corrected_intrs, # 使用校正后的内参
         track3d_pred=track3d_pred.cpu(),
         track2d_pred=track2d_pred.cpu(),
         vis_pred=vis_pred.cpu(),

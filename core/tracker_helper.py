@@ -196,8 +196,15 @@ class TrackerHelper:
             # 3. 结果还原：将 2D 轨迹还原回 512p 分辨率
             # results[5] 是 track2d_pred (B, T, N, 2)
             results = list(results)
+            # 对 2D 轨迹进行缩放还原 (x, y)
             results[5] = results[5].clone()
             results[5][..., 0] /= scale_w
             results[5][..., 1] /= scale_h
+            
+            # 对 3D 轨迹进行缩放还原 (z 轴也要缩放吗？不，3D 坐标是世界坐标，
+            # 但如果 VGGT 输出的深度是相对于缩放后的分辨率，则需要校正)
+            # SpaTracker 的 3D 预测通常是基于内参还原的，如果内参也按比例缩放了，3D 应该是对的。
+            # 这里先打印一下 3D 轨迹的范围，看看是否合理
+            print(f"3D 轨迹范围: min={results[0].min():.2f}, max={results[0].max():.2f}")
             
             return tuple(results)

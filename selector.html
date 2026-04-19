@@ -1,0 +1,132 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>SAM 2 Interactive Selection</title>
+        <style>
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                text-align: center; 
+                background: #f0f0f0; 
+                margin: 0;
+                padding: 20px; 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .container { 
+                background: white; 
+                padding: 20px; 
+                border-radius: 8px; 
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                /* 锁定最小宽度，防止内容变化导致抖动 */
+                min-width: 600px; 
+            }
+            .canvas-wrapper {
+                position: relative;
+                margin: 10px 0;
+                /* 关键：锁定宽高比或使用固定尺寸 */
+                border: 2px solid #333;
+                line-height: 0;
+            }
+            canvas { 
+                cursor: crosshair; 
+                display: block;
+            }
+            .controls { margin-top: 20px; }
+            button { padding: 10px 20px; font-size: 16px; margin: 0 10px; cursor: pointer; border: none; border-radius: 4px; transition: background 0.3s; }
+            #confirm { background: #28a745; color: white; }
+            #confirm:hover { background: #218838; }
+            #reset { background: #dc3545; color: white; }
+            #reset:hover { background: #c82333; }
+            .hint { color: #666; margin-bottom: 10px; font-size: 14px; }
+            .status { 
+                margin-top: 10px; 
+                font-weight: bold; 
+                color: #007bff; 
+                height: 20px; /* 固定高度防止撑开容器 */
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container" id="main-container">
+            <h2>SAM 2 交互式点选</h2>
+            <div class="hint">左键点击：正样本 (绿色) | 右键点击：负样本 (红色)</div>
+            <div class="canvas-wrapper">
+                <canvas id="canvas"></canvas>
+            </div>
+            <div id="status" class="status">准备就绪，请开始点选...</div>
+            <div class="controls">
+                <button id="reset">重置所有点</button>
+                <button id="confirm">确认并开始全视频追踪</button>
+            </div>
+        </div>
+        <script>
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const status = document.getElementById('status');
+            const container = document.getElementById('main-container');
+            const img = new Image();
+            img.src = '/frame.jpg';
+
+            img.onload = () => {
+                // 锁定画布和容器尺寸，防止后续更新导致漂移
+                canvas.width = img.width;
+                canvas.height = img.height;
+                container.style.width = (img.width + 40) + 'px'; 
+                ctx.drawImage(img, 0, 0);
+            };
+
+            canvas.onmousedown = (e) => {
+                e.preventDefault();
+                // 此时 rect.width 应该等于 canvas.width，防止缩放漂移
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const label = e.button === 0 ? 1 : 0; 
+
+                status.innerText = "正在计算 Mask...";
+                fetch('/click', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ point: [x, y], label: label })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const maskImg = new Image();
+                    maskImg.src = 'data:image/jpeg;base64,' + data.mask_img;
+                    maskImg.onload = () => {
+                        // 清除旧图并绘制新图（新图已包含 Mask 和点）
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(maskImg, 0, 0);
+                        status.innerText = "Mask 已更新";
+                    };
+                });
+            };
+
+            // 禁用右键菜单
+            canvas.oncontextmenu = (e) => e.preventDefault();
+
+            document.getElementById('reset').onclick = () => {
+                fetch('/reset', { method: 'POST' })
+                .then(() => {
+                    ctx.drawImage(img, 0, 0);
+                    status.innerText = "已重置";
+                });
+            };
+
+            document.getElementById('confirm').onclick = () => {
+                status.innerText = "正在提交...";
+                fetch('/confirm', { method: 'POST', body: JSON.stringify({}) })
+                .then(() => { 
+                    alert("分割已确认，请返回终端查看追踪进度。");
+                    window.close(); 
+                });
+            };
+        </script>
+    </body>
+    </html>
+    
