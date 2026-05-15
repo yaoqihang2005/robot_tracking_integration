@@ -1,30 +1,82 @@
-# 忽略权重文件 (防止仓库过大)
+# ==================== 权重与模型文件 ====================
 *.pt
 *.pth
 *.ckpt
 *.onnx
+*.bin
+*.safetensors
+*.engine
+*.trt
 external/**/checkpoints/
 external/**/weights/
 
-# 忽略临时数据与结果
-data/temp_frames/
-results/
+# ==================== 视频、图片与数据文件 ====================
 *.mp4
+*.avi
+*.mov
+*.mkv
 *.jpg
+*.jpeg
 *.png
+*.bmp
+*.tiff
+*.tif
+*.gif
+*.webp
 *.npz
+*.npy
+*.parquet
+*.csv
+*.h5
+*.hdf5
+*.mat
+*.pickle
+*.pkl
+*.joblib
 
-# 忽略 Python 缓存
+# ==================== 压缩包与归档 ====================
+*.tar.gz
+*.tgz
+*.tar
+*.zip
+*.7z
+*.rar
+*.bz2
+
+# ==================== 数据与结果目录 ====================
+data/
+results/
+visualizations/
+data/temp_frames/
+
+# ==================== Python 缓存与虚拟环境 ====================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+*.dll
 .ipynb_checkpoints/
-
-# 忽略虚拟环境
 venv/
 env/
 .env
+.venv
 
-# 忽略 IDE 配置
+# ==================== IDE 与编辑器配置 ====================
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 .DS_Store
+
+# ==================== 临时文件 ====================
+*.log
+*.tmp
+*.temp
+frame.jpg
+selector.html
+data/first_frame_temp.jpg
+data/debug_frames/
+data/temp_frames_interactive/
