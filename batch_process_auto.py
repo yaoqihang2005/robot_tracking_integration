@@ -10,6 +10,7 @@ def run_auto_batch():
     parser.add_argument("--video_dir", type=str, required=True, help="视频所在目录")
     parser.add_argument("--anchor_json", type=str, default="results/anchor_point.json", help="锚点配置文件")
     parser.add_argument("--limit", type=int, default=None, help="处理视频数量限制")
+    parser.add_argument("--output_dir", type=str, default=None, help="输出目录（默认会根据视频目录自动命名）")
     args = parser.parse_args()
 
     # 1. 加载锚点 (512p 坐标)
@@ -26,9 +27,22 @@ def run_auto_batch():
     print(f"📍 使用锚点 (512p): {anchor_512p}")
     print("="*60)
 
-    # 2. 查找视频
+    # 2. 确定输出目录
+    if args.output_dir:
+        output_root = args.output_dir
+    else:
+        # 从视频目录自动推断数据集名称
+        video_dir_name = os.path.basename(os.path.dirname(args.video_dir)) if "videos" in args.video_dir else os.path.basename(args.video_dir)
+        output_root = os.path.join("results", f"auto_batch_{video_dir_name}")
+    
+    os.makedirs(output_root, exist_ok=True)
+    print(f"📂 输出目录: {output_root}")
+
+    # 3. 查找视频
     video_files = glob.glob(os.path.join(args.video_dir, "**/*.mp4"), recursive=True)
-    video_files = [v for v in video_files if "images.wrist" in v]
+    # 如果是 episode_videos 目录，不过滤；否则过滤 images.wrist
+    if "episode_videos" not in args.video_dir and "combined_videos" not in args.video_dir:
+        video_files = [v for v in video_files if "images.wrist" in v]
     video_files = sorted(video_files)
     
     if args.limit:
@@ -38,7 +52,7 @@ def run_auto_batch():
 
     for i, v_path in enumerate(video_files):
         video_id = os.path.basename(v_path).replace(".mp4", "")
-        output_subdir = os.path.join("results", "auto_batch", video_id)
+        output_subdir = os.path.join(output_root, video_id)
         
         # 检查是否已处理过
         if os.path.exists(os.path.join(output_subdir, "quality_scores.npz")):

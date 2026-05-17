@@ -27,6 +27,28 @@
     -   `--anchor_json`: 可选，默认为 `results/anchor_point.json`。
     -   `--limit`: 可选，限制处理的视频数量。
 
+### 阶段 2.5：数据筛选（可选，不看重投影误差）
+如果由于分辨率降低导致重投影误差过大，可以使用此步骤跳过重投影误差筛选：
+
+1.  **重新计算评分（不看重投影误差）**：
+    ```bash
+    python3 recompute_scores_no_reproj.py results/auto_batch_510_erase_board_350_lerobot
+    ```
+    - 会把重投影误差阈值设为 10000，不触发筛选
+    - 同时把重投影误差记录到 `filter_log.jsonl`
+
+2.  **整理不合格的 episode**：
+    ```bash
+    python3 scripts/collect_rejected.py results/auto_batch_510_erase_board_350_lerobot results/rejected_episodes_510_erase_board_350
+    ```
+    - 把不合格的 episode 整理到 `results/rejected_episodes_510_erase_board_350/`
+    - 包含 `summary.json` 和 `rejected_info.jsonl`
+
+3.  **生成统计报告**：
+    ```bash
+    python3 scripts/summarize_results.py
+    ```
+
 ### 阶段 3：数据校验与离线适配 (Quality Control & Meta-Fix)
 1.  **生成统计报告**：分析所有视频的得分，查看通过率。
     ```bash
@@ -532,4 +554,4 @@ python3 scripts/full_fix_v4.py --data_dir data/simple_sorting_0409_filtered
 在启智平台（纯终端环境下运行，请查看 [README_QIHANG.md](README_QIHANG.md)。
 
 ### 快速链接：
-- [启智平台纯终端运行指南](README_QIHANG.md) - 包含 OBS 使用注意事项、如何跳过交互式点选等内容。
+- [启智平台纯终端运行指南](README_QIZHI.md) - 包含 OBS 使用注意事项、如何跳过交互式点选等内容。

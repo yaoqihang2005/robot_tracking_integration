@@ -39,25 +39,24 @@ def main_pipeline(video_path, box=None, points=None, labels=None, output_dir="re
     cap = cv2.VideoCapture(video_path)
     video_fps = cap.get(cv2.CAP_PROP_FPS) or 0.0
     frame_idx = 0
-    frames_list = []
     scale = 1.0
+    frame_count = 0
     
     while True:
         ret, frame = cap.read()
         if not ret: break
         
-        # 强制降采样：长边限制在 512
+        # 强制降采样：长边限制在 256（为了防止显存溢出）
         h, w = frame.shape[:2]
         if frame_idx == 0:
-            scale = 512.0 / max(h, w)
+            scale = 256.0 / max(h, w)
             new_h, new_w = int(h * scale), int(w * scale)
             print(f"原始分辨率: {w}x{h} -> 缩放后: {new_w}x{new_h} (Scale: {scale:.2f})")
         
         resized_frame = cv2.resize(frame, (int(w * scale), int(h * scale)))
         cv2.imwrite(os.path.join(frames_dir, f"{frame_idx:05d}.jpg"), resized_frame)
-        # 转换为 RGB 并存入列表
-        frames_list.append(cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB))
         frame_idx += 1
+        frame_count = frame_idx
     cap.release()
 
     # 同步缩放 Box 或 Points 坐标
@@ -91,8 +90,21 @@ def main_pipeline(video_path, box=None, points=None, labels=None, output_dir="re
     print("\n--- 阶段 3: SpaTracker V2 3D 追踪 ---")
     tracker_handler = TrackerHelper()
     
+    # 从磁盘加载帧（避免一次性全部加载到内存）
+    print("正在从磁盘加载帧...")
+    frames_list = []
+    for i in range(frame_count):
+        frame_path = os.path.join(frames_dir, f"{i:05d}.jpg")
+        frame = cv2.imread(frame_path)
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frames_list.append(frame_rgb)
+    
     video_np = np.stack(frames_list, axis=0) # (T, H, W, C)
     video_tensor = torch.from_numpy(video_np).permute(0, 3, 1, 2).float() # (T, C, H, W)
+    
+    # 释放 frames_list 内存
+    del frames_list
+    gc.collect()
 
     # 运行追踪
     outputs = tracker_handler.track_points(

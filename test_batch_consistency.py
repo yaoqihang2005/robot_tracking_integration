@@ -98,7 +98,10 @@ def test_batch_consistency(video_dir, num_videos=10):
     print("="*60)
 
 if __name__ == "__main__":
-    VIDEO_DIR = "data/simple_sorting_0409/videos"
-    if not os.path.exists(VIDEO_DIR):
-        VIDEO_DIR = "robot_tracking_integration/data/simple_sorting_0409/videos"
-    test_batch_consistency(VIDEO_DIR, num_videos=10)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--video_dir", type=str, default="data/simple_sorting_0409/videos", help="视频目录")
+    parser.add_argument("--num_videos", type=int, default=10, help="处理视频数量")
+    args = parser.parse_args()
+    
+    test_batch_consistency(args.video_dir, num_videos=args.num_videos)
