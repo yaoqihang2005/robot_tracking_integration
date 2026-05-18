@@ -129,11 +129,22 @@ results/auto_batch_[batch_name]/
 └── ...
 ```
 
-### 阶段 2.5：数据筛选（可选，不看重投影误差）
+### 阶段 2.5：数据筛选
 
-如果由于分辨率降低导致重投影误差过大，可以使用此步骤跳过重投影误差筛选。
+#### 2.5.0 重新计算评分（包含重投影误差，推荐）
 
-#### 2.5.1 重新计算评分（不看重投影误差）
+如果重投影误差问题已解决，可以使用此脚本重新计算评分（包含重投影误差检查）：
+
+```bash
+python3 scripts/recompute_scores.py results/auto_batch_510_erase_board_350_lerobot
+```
+
+- 重投影误差阈值设为 20px（已修正分辨率对齐问题
+- 包含所有四项指标检查
+
+#### 2.5.1 重新计算评分（不看重投影误差，临时方案）
+
+如果由于分辨率降低导致重投影误差过大，可以使用此步骤跳过重投影误差筛选：
 
 ```bash
 python3 recompute_scores_no_reproj.py results/auto_batch_510_erase_board_350_lerobot
@@ -546,7 +557,25 @@ visualizations/
 | `--video` | str | episode_000000.mp4 | 指定要诊断的视频路径 |
 | `--box` | float | None | 手动输入坐标 `x1 y1 x2 y2` 跳过 Web 交互 |
 
-### 3. `generate_filtered_dataset.py` (推荐：生成完整筛选数据集)
+### 3. `scripts/recompute_scores.py` (重新计算评分，包含重投影)
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| 无 | - | - | 默认处理 `results/auto_batch/` 目录 |
+
+此脚本会重新计算所有评分，重投影误差阈值设为 20px：
+- 包含所有四项指标检查
+- 修正分辨率对齐导致的重投影误差问题
+
+### 4. `recompute_scores_no_reproj.py` (重新计算评分，不看重投影)
+| 参数 | 类型 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- |
+| 无 | - | - | 默认处理 `results/auto_batch_510_erase_board_350_lerobot/` 目录 |
+
+此脚本会重新计算评分，但跳过重投影误差筛选：
+- 重投影误差阈值设为 10000，不触发筛选
+- 同时记录重投影误差到 `filter_log.jsonl`
+
+### 5. `generate_filtered_dataset.py` (推荐：生成完整筛选数据集)
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | 无 | - | - | 脚本内置路径配置，直接运行 |
@@ -557,16 +586,6 @@ visualizations/
 - 从原始数据复制并重命名视频和 parquet
 - 更新 episode_index、frame_index、index 列
 - 生成正确的 `info.json`、`episodes.jsonl`
-
-### 4. `full_fix_v4.py` (Meta 数据完整修复)
-| 参数 | 类型 | 默认值 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `--data_dir` | str | **必填** | 筛选后数据的根目录路径 |
-
-此脚本解决筛选后数据的所有元数据不一致问题：
-- 对齐 parquet 行数与视频帧数
-- 重新编号并同步所有 meta 文件
-- **必须在训练前执行**
 
 ---
 
