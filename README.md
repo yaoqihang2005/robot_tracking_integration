@@ -1,75 +1,192 @@
-# Robot Tracking Integration & Quality Control Pipeline
+# Robot Tracking Integration &amp; Quality Control Pipeline
 
 本项目是一套为 **Diffusion Policy** 和 **pi0** 等多模态策略模型量身定制的 3D 数据增强与自动化筛选流水线。通过集成 **SAM 2** 和 **SpaTracker V2**，实现了从原始视频到高质量、物理一致的 3D 轨迹真值提取。
 
 ---
 
+## ⚠️ 重要：文件组织规范
+
+**为避免不同批次处理结果互相覆盖，请严格遵循以下文件命名规范：**
+
+| 文件类型 | 推荐路径 | 说明 |
+|:--------|:--------|:-----|
+| 锚点文件 | `results/[batch_name]_anchor_point.json` | 例如：`results/510_erase_board_350_anchor_point.json` |
+| 批处理结果 | `results/auto_batch_[batch_name]/` | 例如：`results/auto_batch_510_erase_board_350_lerobot/` |
+| 一致性测试 | `results/consistency_test_[batch_name]/` | 例如：`results/consistency_test_510_erase_board_350/` |
+| 不合格数据 | `results/rejected_episodes_[batch_name]/` | 例如：`results/rejected_episodes_510_erase_board_350/` |
+
+**❌ 禁止使用：**
+- `results/anchor_point.json` （无法区分批次）
+- `results/auto_batch/` （无法区分批次）
+
+---
+
+## 🎬 第一步：切分 Episode（LeRobot 数据集）
+
+如果你的数据是 LeRobot 格式的长视频，需要先切分成单个 episode。
+
+### 切分脚本使用
+
+```bash
+python3 split_episodes_correct.py
+```
+
+### 脚本功能
+
+- 使用 `index`（全局帧索引）正确切分 episode
+- 避免了之前使用 `frame_index`（episode 内部帧索引）导致的切分错误
+- 自动备份旧的切分结果
+
+### 修改切分参数
+
+编辑 `split_episodes_correct.py` 的 `__main__` 部分：
+
+```python
+if __name__ == "__main__":
+    output_dir = split_videos_correctly(
+        data_root="data/510_erase_board_350_lerobot",  # 你的数据目录
+        video_key="observation.images.wrist",            # 视频键
+        output_dir="data/510_erase_board_350_lerobot/episode_videos"  # 输出目录
+    )
+```
+
+### 输出文件
+
+```
+data/[dataset_name]/episode_videos/
+├── episode_000000.mp4
+├── episode_000001.mp4
+├── episode_000002.mp4
+└── ...
+```
+
+---
+
 ## 🚀 核心流水线 (End-to-End Pipeline)
 
-本流水线的设计核心是 **“感知小脑验证大脑”**：利用几何与物理约束，自动从海量感知输出中筛选出 100% 正确的专家演示数据。
+本流水线的设计核心是 **"感知小脑验证大脑"**：利用几何与物理约束，自动从海量感知输出中筛选出 100% 正确的专家演示数据。
 
 ### 阶段 1：交互式锚点标定 (Human-in-the-loop)
-1.  **启动一致性测试**：运行以下命令，在 Web 界面（默认端口 8080）对前 10 段视频进行点选。
-    ```bash
-    python3 test_batch_consistency.py
-    ```
-2.  **计算黄金锚点**：点选完成后，运行脚本分析重叠区域并生成锚点配置文件 `results/anchor_point.json`。
-    ```bash
-    python3 scripts/find_anchor.py
-    ```
+
+#### 1.1 启动一致性测试
+
+```bash
+python3 test_batch_consistency.py
+```
+
+在 Web 界面（默认端口 8080）对前 10 段视频进行点选。
+
+#### 1.2 计算黄金锚点
+
+点选完成后，运行脚本分析重叠区域并生成锚点配置文件：
+
+```bash
+python3 scripts/find_anchor.py
+```
+
+**⚠️ 注意：** 生成的锚点文件默认在 `results/anchor_point.json`，**请务必重命名为批次特定的文件名**：
+
+```bash
+mv results/anchor_point.json results/510_erase_board_350_anchor_point.json
+```
+
+#### 启智平台纯终端环境（无交互式点选）
+
+在启智平台纯终端环境下，无法进行交互式点选，请参考 [README_QIHANG.md](README_QIHANG.md) 使用手动创建锚点的方式。
 
 ### 阶段 2：大规模自动批处理 (Auto-Batch Processing)
-1.  **执行全自动追踪**：电脑将读取锚点，自动为目录下所有视频生成 3D 轨迹和评分。
-    ```bash
-    python3 batch_process_auto.py --video_dir data/simple_sorting_0409/videos --limit 200
-    ```
-    -   `--video_dir`: 必填，指定包含 `.mp4` 文件的原始视频根目录。
-    -   `--anchor_json`: 可选，默认为 `results/anchor_point.json`。
-    -   `--limit`: 可选，限制处理的视频数量。
+
+#### 2.1 执行全自动追踪
+
+使用批次特定的锚点文件进行批处理：
+
+```bash
+python3 batch_process_auto.py \
+    --video_dir data/510_erase_board_350_lerobot/episode_videos \
+    --anchor_json results/510_erase_board_350_anchor_point.json \
+    --output_dir results/auto_batch_510_erase_board_350_lerobot
+```
+
+参数说明：
+- `--video_dir`: 必填，指定包含 `.mp4` 文件的视频目录
+- `--anchor_json`: 必填，批次特定的锚点文件路径
+- `--output_dir`: 可选，输出目录（默认会根据视频目录自动命名为 `results/auto_batch_[batch_name]/`）
+- `--limit`: 可选，限制处理的视频数量
+
+#### 2.2 输出目录结构
+
+```
+results/auto_batch_[batch_name]/
+├── episode_000000/
+│   ├── quality_scores.npz
+│   ├── result_tapip3d.npz
+│   └── ...
+├── episode_000001/
+│   ├── quality_scores.npz
+│   ├── result_tapip3d.npz
+│   └── ...
+├── filter_log.jsonl
+└── ...
+```
 
 ### 阶段 2.5：数据筛选（可选，不看重投影误差）
-如果由于分辨率降低导致重投影误差过大，可以使用此步骤跳过重投影误差筛选：
 
-1.  **重新计算评分（不看重投影误差）**：
-    ```bash
-    python3 recompute_scores_no_reproj.py results/auto_batch_510_erase_board_350_lerobot
-    ```
-    - 会把重投影误差阈值设为 10000，不触发筛选
-    - 同时把重投影误差记录到 `filter_log.jsonl`
+如果由于分辨率降低导致重投影误差过大，可以使用此步骤跳过重投影误差筛选。
 
-2.  **整理不合格的 episode**：
-    ```bash
-    python3 scripts/collect_rejected.py results/auto_batch_510_erase_board_350_lerobot results/rejected_episodes_510_erase_board_350
-    ```
-    - 把不合格的 episode 整理到 `results/rejected_episodes_510_erase_board_350/`
-    - 包含 `summary.json` 和 `rejected_info.jsonl`
+#### 2.5.1 重新计算评分（不看重投影误差）
 
-3.  **生成统计报告**：
-    ```bash
-    python3 scripts/summarize_results.py
-    ```
+```bash
+python3 recompute_scores_no_reproj.py results/auto_batch_510_erase_board_350_lerobot
+```
 
-### 阶段 3：数据校验与离线适配 (Quality Control & Meta-Fix)
-1.  **生成统计报告**：分析所有视频的得分，查看通过率。
-    ```bash
-    python3 scripts/summarize_results.py
-    ```
-2.  **打包高质量数据（新版推荐）**：基于打分文件重新生成完整的数据集，自动处理所有索引对齐。
-    ```bash
-    python3 scripts/generate_filtered_dataset.py
-    ```
-    输出目录：`data/simple_sorting_0409_filtered_v4/`
-    
-    **旧版方式（不推荐）**：仅复制视频，需要额外修复
-    ```bash
-    python3 scripts/package_filtered_data.py
-    python3 scripts/full_fix_v4.py --data_dir data/simple_sorting_0409_filtered
-    ```
-3.  **上传到 OBS**（可选）：打包并上传到对象存储供训练服务器下载
-    ```bash
-    cd data && tar -czf simple_sorting_0409_filtered_v4.tar.gz simple_sorting_0409_filtered_v4/
-    obsutil cp simple_sorting_0409_filtered_v4.tar.gz obs://your-bucket/path/
-    ```
+- 会把重投影误差阈值设为 10000，不触发筛选
+- 同时把重投影误差记录到 `filter_log.jsonl`
+
+#### 2.5.2 整理不合格的 episode
+
+```bash
+python3 scripts/collect_rejected.py \
+    results/auto_batch_510_erase_board_350_lerobot \
+    results/rejected_episodes_510_erase_board_350
+```
+
+- 把不合格的 episode 整理到 `results/rejected_episodes_510_erase_board_350/`
+- 包含 `summary.json` 和 `rejected_info.jsonl`
+
+#### 2.5.3 生成统计报告
+
+```bash
+python3 scripts/summarize_results.py
+```
+
+### 阶段 3：数据校验与离线适配 (Quality Control &amp; Meta-Fix)
+
+#### 3.1 生成统计报告
+
+分析所有视频的得分，查看通过率：
+
+```bash
+python3 scripts/summarize_results.py
+```
+
+#### 3.2 打包高质量数据（新版推荐）
+
+基于打分文件重新生成完整的数据集，自动处理所有索引对齐：
+
+```bash
+python3 scripts/generate_filtered_dataset.py
+```
+
+输出目录：`data/simple_sorting_0409_filtered_v4/`
+
+#### 3.3 上传到 OBS（可选）
+
+打包并上传到对象存储供训练服务器下载：
+
+```bash
+cd data &amp;&amp; tar -czf simple_sorting_0409_filtered_v4.tar.gz simple_sorting_0409_filtered_v4/
+obsutil cp simple_sorting_0409_filtered_v4.tar.gz obs://your-bucket/path/
+```
 
 ---
 
@@ -81,43 +198,43 @@
 
 | 指标名称 | 含义 | 触发条件 |
 |:--------|:-----|:---------|
-| **`visibility_failure`** | 可见性失败 | 连续 5 帧以上，每帧平均可见性 < 0.4 |
-| **`low_confidence`** | 低置信度 | 追踪器整体置信度均值 < 0.6 |
-| **`reprojection_conflict`** | 重投影冲突 | 重投影误差 P95 > 20px（几何一致性校验失败） |
-| **`tracking_jump`** | 跟踪跳跃 | 速度 P95 > 2.0 m/s（轨迹出现突变/跳变） |
+| **`visibility_failure`** | 可见性失败 | 连续 5 帧以上，每帧平均可见性 &lt; 0.4 |
+| **`low_confidence`** | 低置信度 | 追踪器整体置信度均值 &lt; 0.6 |
+| **`reprojection_conflict`** | 重投影冲突 | 重投影误差 P95 &gt; 20px（几何一致性校验失败） |
+| **`tracking_jump`** | 跟踪跳跃 | 速度 P95 &gt; 2.0 m/s（轨迹出现突变/跳变） |
 
 ### 指标计算逻辑详解
 
 所有打分标准均基于 SpaTracker V2 输出的原始数据计算，代码实现位于 `utils/data_filter.py`。
 
-> **📌 相机参数从何而来？**
-> 
-> 本项目采用 **VGGT (Visual Geometry Grounded Transformer)** 作为前端，直接从单目视频中预测相机参数，无需人工标定或外部输入：
-> 
-> ```python
-> # 1. VGGT 前端预测几何信息
-> vggt_model = VGGT4Track.from_pretrained("weights/SpatialTrackerV2_Front")
-> predictions = vggt_model(video)  # 视频 -> 相机参数 + 深度
-> 
-> extrs = predictions["poses_pred"]  # 相机位姿 (T, 4, 4) 世界到相机
-> intrs = predictions["intrs"]       # 相机内参 (T, 3, 3)
-> depth = predictions["points_map"][..., 2]  # 深度图 (T, H, W)
-> 
-> # 2. SpaTracker 后端利用这些参数进行 3D 追踪
-> results = spatracker_model.forward(
->     video=video,
->     depth=depth,
->     intrs=intrs,      # VGGT 预测的内参
->     extrs=extrs,      # VGGT 预测的位姿
->     queries=queries,
->     ...
-> )
-> ```
-> 
-> **关键特性**:
-> - **自包含**: 仅需 RGB 视频，无需相机标定文件
-> - **在线估计**: 每帧的相机内参和位姿都是 VGGT 实时预测的
-> - **精度**: 基于大规模视觉几何预训练，精度接近传统 SLAM 方法
+&gt; **📌 相机参数从何而来？**
+&gt; 
+&gt; 本项目采用 **VGGT (Visual Geometry Grounded Transformer)** 作为前端，直接从单目视频中预测相机参数，无需人工标定或外部输入：
+&gt; 
+&gt; ```python
+&gt; # 1. VGGT 前端预测几何信息
+&gt; vggt_model = VGGT4Track.from_pretrained("weights/SpatialTrackerV2_Front")
+&gt; predictions = vggt_model(video)  # 视频 -&gt; 相机参数 + 深度
+&gt; 
+&gt; extrs = predictions["poses_pred"]  # 相机位姿 (T, 4, 4) 世界到相机
+&gt; intrs = predictions["intrs"]       # 相机内参 (T, 3, 3)
+&gt; depth = predictions["points_map"][..., 2]  # 深度图 (T, H, W)
+&gt; 
+&gt; # 2. SpaTracker 后端利用这些参数进行 3D 追踪
+&gt; results = spatracker_model.forward(
+&gt;     video=video,
+&gt;     depth=depth,
+&gt;     intrs=intrs,      # VGGT 预测的内参
+&gt;     extrs=extrs,      # VGGT 预测的位姿
+&gt;     queries=queries,
+&gt;     ...
+&gt; )
+&gt; ```
+&gt; 
+&gt; **关键特性**:
+&gt; - **自包含**: 仅需 RGB 视频，无需相机标定文件
+&gt; - **在线估计**: 每帧的相机内参和位姿都是 VGGT 实时预测的
+&gt; - **精度**: 基于大规模视觉几何预训练，精度接近传统 SLAM 方法
 
 #### 1. visibility_failure (可见性失败)
 
@@ -129,10 +246,10 @@ SpaTracker V2 输出:
 
 计算步骤:
   1. frame_vis_mean = mean(vis_pred, dim=1)  # 每帧对所有追踪点求平均可见性
-  2. low_vis_mask = frame_vis_mean < 0.4     # 标记低可见性帧
+  2. low_vis_mask = frame_vis_mean &lt; 0.4     # 标记低可见性帧
   3. visibility_low_run = max_consecutive_true(low_vis_mask)  # 最长连续低可见帧数
 
-触发条件: visibility_low_run >= 5
+触发条件: visibility_low_run &gt;= 5
 ```
 
 **关键细节**:
@@ -188,7 +305,7 @@ SpaTracker V2 输出:
 计算步骤:
   1. mean_confidence = mean(conf_pred)  # 全序列所有点的平均置信度
 
-触发条件: mean_confidence < 0.6
+触发条件: mean_confidence &lt; 0.6
 ```
 
 **物理意义**:
@@ -220,7 +337,7 @@ SpaTracker V2 输出:
      reproj_err_flat = reproj_err.flatten()  # (T*N,) 整段视频的所有误差
      reprojection_error_p95_px = quantile(reproj_err_flat, 0.95)
 
-触发条件: reprojection_error_p95_px > 20.0
+触发条件: reprojection_error_p95_px &gt; 20.0
 ```
 
 **关键细节**:
@@ -258,7 +375,7 @@ SpaTracker V2 输出:
      speed_flat = speed.flatten()  # ((T-1)*N,) 整段视频的所有速度值
      speed_p95 = quantile(speed_flat, 0.95)
 
-触发条件: speed_p95 > 2.0
+触发条件: speed_p95 &gt; 2.0
 ```
 
 **关键细节**:
@@ -345,10 +462,10 @@ explorer.exe visualizations/episode_000000_viz.html
 
 # 方法 3: Python 简易 HTTP 服务器（推荐用于远程服务器）
 # 在服务器上启动 HTTP 服务
-cd visualizations && python3 -m http.server 8080
+cd visualizations &amp;&amp; python3 -m http.server 8080
 
 # 然后在本地浏览器访问
-# http://<服务器IP>:8080/episode_000000_viz.html
+# http://&lt;服务器IP&gt;:8080/episode_000000_viz.html
 
 # 方法 4: VS Code Live Server 插件
 # 右键点击 HTML 文件 → "Open with Live Server"
@@ -409,7 +526,7 @@ visualizations/
 └── ...
 ```
 
-> **注意**：每个 HTML 文件约 15-25MB，包含完整的视频、深度图和轨迹数据，无需外部依赖即可离线查看。
+&gt; **注意**：每个 HTML 文件约 15-25MB，包含完整的视频、深度图和轨迹数据，无需外部依赖即可离线查看。
 
 ---
 
@@ -419,8 +536,9 @@ visualizations/
 | 参数 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `--video_dir` | str | **必填** | 视频数据集的根目录路径 |
-| `--anchor_json` | str | `results/anchor_point.json` | 阶段 1 生成的点击坐标文件 |
+| `--anchor_json` | str | `results/anchor_point.json` | 阶段 1 生成的点击坐标文件（建议使用批次特定名称） |
 | `--limit` | int | None | 仅处理前 N 个视频（用于快速测试） |
+| `--output_dir` | str | None | 输出目录（默认会根据视频目录自动命名） |
 
 ### 2. `test_first_video.py` (单段诊断)
 | 参数 | 类型 | 默认值 | 说明 |
@@ -456,8 +574,6 @@ visualizations/
 
 在断网环境（如创智服务器 GPU 区）启动训练，请**严格执行**以下步骤：
 
-### 方案 A：直接下载已修复的数据包（推荐）
-
 下载最新生成的完整数据集（`simple_sorting_0409_filtered_v4.tar.gz`）：
 
 ```bash
@@ -481,41 +597,6 @@ python -m lerobot.scripts.train \
     --wandb.mode="offline"
 ```
 
-**历史数据包**（旧版，需要额外修复）：
-```bash
-obsutil cp obs://sai.liyl/lihong/simple_sorting_0409_filtered_fixed.tar ./
-```
-
-### 方案 B：本地修复后再训练
-
-如果在训练服务器上有原始筛选数据但需要修复：
-
-```bash
-# 1. 运行完整修复脚本
-python3 scripts/full_fix_v4.py --data_dir data/simple_sorting_0409_filtered
-
-# 2. 启动训练
-export HF_HUB_OFFLINE=1
-
-python -m lerobot.scripts.train \
-    --dataset.repo_id=None \
-    --dataset.root=data/simple_sorting_0409_filtered \
-    --policy.type=diffusion \
-    --batch_size=256 \
-    --policy.use_tactile=false \
-    --steps=400000 \
-    --wandb.mode="offline"
-```
-
-### ⚠️ 常见问题排查
-
-| 错误类型 | 原因 | 解决方案 |
-|---------|------|---------|
-| `AssertionError: episode数量不匹配` | meta/info.json 未更新 | 运行 `full_fix_v4.py` |
-| `ValueError: timestamps violate tolerance` | episodes.jsonl 的 length 与实际不符 | 运行 `full_fix_v4.py` |
-| `RuntimeError: Invalid frame index` | parquet 行数与视频帧数不一致 | 运行 `full_fix_v4.py` |
-| `FileNotFoundError: video not found` | 视频文件缺失 | 检查 package_filtered_data.py 是否完整执行 |
-
 ---
 
 ## 🗑️ 维护说明
@@ -538,12 +619,6 @@ data/simple_sorting_0409_filtered_v4/
 └── meta/                    # 正确的 meta 文件
 ```
 
-**旧版方式（需要手动修复）**：
-```bash
-python3 scripts/package_filtered_data.py
-python3 scripts/full_fix_v4.py --data_dir data/simple_sorting_0409_filtered
-```
-
 ### 问题说明
 旧版 `package_filtered_data.py` 只拷贝了视频文件，未拷贝 parquet，导致数据不一致。`generate_filtered_dataset.py` 会基于打分文件从原始数据重新提取，确保所有索引和帧数完全对齐。
 
@@ -554,4 +629,4 @@ python3 scripts/full_fix_v4.py --data_dir data/simple_sorting_0409_filtered
 在启智平台（纯终端环境下运行，请查看 [README_QIHANG.md](README_QIHANG.md)。
 
 ### 快速链接：
-- [启智平台纯终端运行指南](README_QIZHI.md) - 包含 OBS 使用注意事项、如何跳过交互式点选等内容。
+- [启智平台纯终端运行指南](README_QIHANG.md) - 包含 OBS 使用注意事项、如何跳过交互式点选等内容。
