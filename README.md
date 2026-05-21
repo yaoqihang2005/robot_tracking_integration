@@ -90,10 +90,6 @@ python3 scripts/find_anchor.py
 mv results/anchor_point.json results/510_erase_board_350_anchor_point.json
 ```
 
-#### 启智平台纯终端环境（无交互式点选）
-
-在启智平台纯终端环境下，无法进行交互式点选，请参考 [README_QIHANG.md](README_QIHANG.md) 使用手动创建锚点的方式。
-
 ### 阶段 2：大规模自动批处理 (Auto-Batch Processing)
 
 #### 2.1 执行全自动追踪
@@ -172,7 +168,39 @@ python3 scripts/summarize_results.py
 
 ### 阶段 3：数据校验与离线适配 (Quality Control &amp; Meta-Fix)
 
-#### 3.1 生成统计报告
+#### 3.1 可视化追踪结果（推荐）
+
+我们提供两种可视化方式，可根据需求选择：
+
+**方法 A：交互式 3D 可视化（HTML）**
+
+适合在浏览器中交互查看 3D 点云轨迹：
+
+```bash
+# 可视化单个 episode
+python3 scripts/visualize_tapip3d.py --episode 0
+
+# 可视化所有 episode
+python3 scripts/visualize_tapip3d.py --all
+
+# 或直接指定 npz 文件
+python3 scripts/visualize_tapip3d.py --input results/auto_batch_510_erase_board_350_lerobot/episode_000000/result_tapip3d.npz
+```
+
+输出为 HTML 文件，用浏览器打开即可查看交互式 3D 点云轨迹。
+
+**方法 B：视频叠加可视化（MP4）**
+
+适合离线查看或嵌入演示视频，直接在原始视频上叠加轨迹点：
+
+```bash
+python3 utils/viz_tapip3d.py \
+    results/auto_batch_510_erase_board_350_lerobot/episode_000000/result_tapip3d.npz
+```
+
+输出为 MP4 视频文件，可直接播放。
+
+#### 3.2 生成统计报告
 
 分析所有视频的得分，查看通过率：
 
@@ -180,7 +208,7 @@ python3 scripts/summarize_results.py
 python3 scripts/summarize_results.py
 ```
 
-#### 3.2 打包高质量数据（新版推荐）
+#### 3.3 打包高质量数据（新版推荐）
 
 基于打分文件重新生成完整的数据集，自动处理所有索引对齐：
 
@@ -643,9 +671,3 @@ data/simple_sorting_0409_filtered_v4/
 
 ---
 
-## 🌐 启智平台运行指南
-
-在启智平台（纯终端环境下运行，请查看 [README_QIHANG.md](README_QIHANG.md)。
-
-### 快速链接：
-- [启智平台纯终端运行指南](README_QIHANG.md) - 包含 OBS 使用注意事项、如何跳过交互式点选等内容。
