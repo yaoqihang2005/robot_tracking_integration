@@ -90,6 +90,32 @@ python3 scripts/find_anchor.py
 mv results/anchor_point.json results/510_erase_board_350_anchor_point.json
 ```
 
+#### 1.3 可视化第一步 SAM 结果（强烈推荐）
+
+如果自动点选后的追踪点没有落在目标物体上，建议先检查 **第一步：锚点 -> SAM mask -> 256 个查询点采样** 是否已经偏掉。
+
+```bash
+python3 scripts/viz_step1_sam.py \
+    --video data/510_erase_board_350_lerobot/episode_videos/episode_000000.mp4 \
+    --anchor_json results/510_erase_board_350_anchor_point.json \
+    --out_dir results/auto_batch_510_erase_board_350_lerobot/episode_000000/step1_debug \
+    --long_side 256
+```
+
+输出目录中最重要的文件：
+
+- `sam_mask_frame00000.png`：第 0 帧的 SAM 二值 mask
+- `sam_mask_overlay_frame00000.jpg`：第 0 帧 + anchor 点 + SAM mask
+- `sam_mask_overlay_with_queries_frame00000.jpg`：第 0 帧 + anchor 点 + SAM mask + 256 个查询点
+
+排查时优先看 `sam_mask_overlay_with_queries_frame00000.jpg`：
+
+- 红点：自动 anchor 点
+- 绿色区域：SAM 分割结果
+- 蓝点：从 mask 中采样出的 256 个查询点
+
+如果绿色区域没有覆盖目标物体，或者蓝点明显没有落在目标表面，说明问题发生在追踪之前，应优先调整 anchor 点或 SAM 提示方式，而不是先改后面的可视化参数。
+
 ### 阶段 2：大规模自动批处理 (Auto-Batch Processing)
 
 #### 2.1 执行全自动追踪
