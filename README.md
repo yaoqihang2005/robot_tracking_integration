@@ -194,7 +194,12 @@ python3 scripts/visualize_tapip3d.py --input results/auto_batch_510_erase_board_
 适合离线查看或嵌入演示视频，直接在原始视频上叠加轨迹点：
 
 ```bash
-python3 utils/viz_tapip3d.py \
+# 推荐：使用 trajectory_3d.npz 中的 trajectories_2d（2D 像素轨迹，效果与 inference.py 一致）
+conda run -n spatrack python utils/visualize_from_npz.py \
+    results/auto_batch_510_erase_board_350_lerobot/episode_000000/trajectory_3d.npz
+
+# 兼容：如果只有 result_tapip3d.npz，也可以直接传入（会用 intrinsics/extrinsics 将 coords(3D) 投影回 2D 再绘制）
+conda run -n spatrack python utils/visualize_from_npz.py \
     results/auto_batch_510_erase_board_350_lerobot/episode_000000/result_tapip3d.npz
 ```
 
@@ -670,4 +675,3 @@ data/simple_sorting_0409_filtered_v4/
 旧版 `package_filtered_data.py` 只拷贝了视频文件，未拷贝 parquet，导致数据不一致。`generate_filtered_dataset.py` 会基于打分文件从原始数据重新提取，确保所有索引和帧数完全对齐。
 
 ---
-
