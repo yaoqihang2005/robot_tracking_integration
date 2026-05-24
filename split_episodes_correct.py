@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 正确切分 LeRobot 数据集的长视频（使用 index 作为全局帧索引）
@@ -39,7 +38,9 @@ def build_frame_mapping(frame_counts):
 def split_videos_correctly(
     data_root="data/510_erase_board_350_lerobot",
     video_key="observation.images.wrist",
-    output_dir="data/510_erase_board_350_lerobot/episode_videos"
+    output_dir="data/510_erase_board_350_lerobot/episode_videos",
+    output_chunk="chunk-000",
+    fps=24.0,
 ):
     data_path = Path(data_root)
     main_df = pd.read_parquet(data_path / "data/chunk-000/file-000.parquet")
@@ -71,7 +72,9 @@ def split_videos_correctly(
     print(f"第一个 episode: {ep_global_ranges[unique_eps[0]]}")
     print(f"最后一个 episode: {ep_global_ranges[unique_eps[-1]]}")
     
-    os.makedirs(output_dir, exist_ok=True)
+    output_root = Path(output_dir)
+    output_video_dir = output_root / output_chunk / video_key
+    os.makedirs(output_video_dir, exist_ok=True)
     
     print("\n开始切分...")
     
@@ -93,9 +96,8 @@ def split_videos_correctly(
                 continue
             
             height, width = frame.shape[:2]
-            fps = 24.0
             
-            output_path = os.path.join(output_dir, f"episode_{ep:06d}.mp4")
+            output_path = str(output_video_dir / f"episode_{ep:06d}.mp4")
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
             out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
             
@@ -120,24 +122,43 @@ def split_videos_correctly(
             cap.release()
     
     print("\n" + "=" * 80)
-    print(f"✅ 切分完成！输出到: {output_dir}")
+    print(f"✅ 切分完成！输出到: {output_video_dir}")
     print("=" * 80)
     
-    return output_dir
+    return str(output_root)
 
 
 if __name__ == "__main__":
-    old_dir = "data/510_erase_board_350_lerobot/episode_videos_old"
-    if os.path.exists("data/510_erase_board_350_lerobot/episode_videos"):
-        os.rename("data/510_erase_board_350_lerobot/episode_videos", old_dir)
+    import argparse
+    import datetime
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--data_root", type=str, default="data/510_erase_board_350_lerobot")
+    parser.add_argument("--video_key", type=str, default="observation.images.wrist")
+    parser.add_argument("--output_dir", type=str, default="data/510_erase_board_350_lerobot/episode_videos")
+    parser.add_argument("--output_chunk", type=str, default="chunk-000")
+    parser.add_argument("--fps", type=float, default=24.0)
+    parser.add_argument("--no_backup", action="store_true")
+    args = parser.parse_args()
+
+    if os.path.exists(args.output_dir) and not args.no_backup:
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        old_dir = f"{args.output_dir}_old_{ts}"
+        os.rename(args.output_dir, old_dir)
         print(f"已备份旧目录到: {old_dir}")
-    
-    output_dir = split_videos_correctly()
+
+    output_root = split_videos_correctly(
+        data_root=args.data_root,
+        video_key=args.video_key,
+        output_dir=args.output_dir,
+        output_chunk=args.output_chunk,
+        fps=args.fps,
+    )
     
     print("\n验证切分结果:")
-    video_files = sorted(list(Path(output_dir).glob("*.mp4")))
-    for i, vf in enumerate(video_files[:10]):
+    video_files = sorted(list(Path(output_root).glob("**/*.mp4")))
+    for vf in video_files[:10]:
         cap = cv2.VideoCapture(str(vf))
         num_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         cap.release()
-        print(f"  {vf.name}: {num_frames} frames")
+        print(f"  {vf.relative_to(Path(output_root))}: {num_frames} frames")
